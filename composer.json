@@ -1,0 +1,14 @@
+{
+    "name": "pc/php-mvc",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Ayoub Ouharda"
+        }
+    ],
+    "require": {}
+}
