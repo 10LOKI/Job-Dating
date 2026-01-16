@@ -4,10 +4,20 @@ namespace App\core;
 
 class Router
 {
+    private static ?Router $instance = null;
     private array $routes = [
         "GET" => [],
         "POST" => []
     ];
+    private function __construct(){}
+    
+    public static function getInstance(): Router
+    {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
     public function get(string $path, $callback): void
     {
         $this->routes['GET'][$path] = $callback;
@@ -19,6 +29,7 @@ class Router
     public function dispatch()
     {
         $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+        $uri = str_replace('/PHP-MVC/public', '', $uri);
         $method = $_SERVER['REQUEST_METHOD'];
 
         foreach ($this->routes[$method] as $path => $callback) {
@@ -34,7 +45,9 @@ class Router
                 if (is_array($callback)) {
                     [$class, $methodName] = $callback;
                     if (class_exists($class)) {
-                        $controller = new $class();
+                        $controller = is_subclass_of($class, BaseController::class) 
+                            ? new $class() 
+                            : new $class();
                         return call_user_func_array([$controller, $methodName], $matches);
                     }
                 }
