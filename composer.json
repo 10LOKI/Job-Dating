@@ -10,5 +10,7 @@
             "name": "Ayoub Ouharda"
         }
     ],
-    "require": {}
+    "require": {
+        "twig/twig": "^3.22"
+    }
 }
