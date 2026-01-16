@@ -5,6 +5,7 @@ use App\core\BaseController;
 use App\models\UserModel;
 use App\core\Security;
 use App\core\Validation;
+use App\core\Session;
 
 class UserController extends BaseController
 {
@@ -28,7 +29,7 @@ class UserController extends BaseController
     
     public function register()
     {
-        session_start();
+        Session::start();
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo "<h3>Test CSRF:</h3>";
@@ -52,19 +53,29 @@ class UserController extends BaseController
             
             if (!$isValid) {
                 echo "Erreurs: <pre>" . print_r(Validation::getErrors(), true) . "</pre>";
+                Session::flash('errors', Validation::getErrors());
                 $this->view('login', ['errors' => Validation::getErrors()]);
                 return;
             }
             
             echo "Validation: SUCCÈS<br>";
             
-            echo "<h3>Test Hash Password:</h3>";
-            $hash = Security::hashPassword($data['password']);
-            echo "Hash créé: " . substr($hash, 0, 30) . "...<br>";
-            $verifyOk = Security::verifyPassword($data['password'], $hash);
-            echo "Vérification: " . ($verifyOk ? 'OUI' : 'NON') . "<br>";
+            // echo "<h3>Test Hash Password:</h3>";
+            // $hash = Security::hashPassword($data['password']);
+            // echo "Hash créé: " . substr($hash, 0, 30) . "...<br>";
+            // $verifyOk = Security::verifyPassword($data['password'], $hash);
+            // echo "Vérification: " . ($verifyOk ? 'OUI' : 'NON') . "<br>";
             
-            echo "<h3>Tous les tests passés!</h3>";
+            // echo "<h3>Test Session:</h3>";
+            // Session::set('user', $data['username']);
+            // echo "Session set: user = " . Session::get('user') . "<br>";
+            // echo "Session has 'user': " . (Session::has('user') ? 'OUI' : 'NON') . "<br>";
+            // Session::flash('success', 'Inscription réussie!');
+            // echo "Flash message set<br>";
+            // echo "Flash message: " . Session::flash('success') . "<br>";
+            // echo "Flash message après lecture: " . (Session::has('success') ? 'EXISTE' : 'SUPPRIMÉ') . "<br>";
+            
+            // echo "<h3>Tous les tests passés!</h3>";
         } else {
             $this->view('login');
         }
