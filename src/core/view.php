@@ -1,5 +1,4 @@
 <?php
-
 namespace App\core;
 
 use Twig\Environment;

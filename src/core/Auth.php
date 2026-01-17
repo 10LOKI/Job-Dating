@@ -6,14 +6,11 @@ use App\core\Controller;
 
 class AuthController extends Controller
 {
-
     public function __construct()
     {
         parent::__construct();
         // $this->userModel = new User();
-
     }
-
     public function index(){
 
 
@@ -64,11 +61,5 @@ class AuthController extends Controller
             $this->redirect('/dashboard');
             $this->session->flash('success', 'Connexion réussie');
         }
-
-
-
-
     }
-
-
 }
