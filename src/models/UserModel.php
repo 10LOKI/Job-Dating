@@ -1,18 +1,51 @@
 <?php
+
 namespace App\models;
-use App\core\BaseModel;
 
-class UserModel extends BaseModel
+use App\core\Model;
+
+class User extends Model
 {
-    protected  $table = "users";
+    protected $table = 'users';
+    protected $primaryKey = 'id';
+    protected $fillable = ['name', 'email', 'password', 'role'];
 
-    public function getAllUsers()
+    /**
+     * Trouve un utilisateur par email
+     */
+    public function findByEmail(string $email): ?array
     {
-        return $this -> db -> query("SELECT * FROM users") -> fetchAll();
+        return $this->first('email', $email);
     }
-    public function findUser($id)
+
+    /**
+     * Vérifie si un email existe déjà
+     */
+    public function emailExists(string $email): bool
     {
-        return $this -> db -> query("SELECT * FROM users WHERE id = ?",[$id]) -> fetch();
+        $user = $this->findByEmail($email);
+        return $user !== null;
+    }
+
+    /**
+     * Récupère tous les admins
+     */
+    public function getAdmins(): array
+    {
+        return $this->where('role', 'admin');
+    }
+
+    /**
+     * Met à jour le dernier login
+     */
+    public function updateLastLogin(int $userId): bool
+    {
+        $sql = "UPDATE {$this->table} SET last_login = NOW() WHERE {$this->primaryKey} = ?";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([$userId]);
+    }
+    public function alldata() :array
+    {
+        return $this->all();
     }
 }
-?>

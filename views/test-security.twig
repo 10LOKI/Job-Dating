@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Security & Validation</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        button { background: #007cba; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+        .error { color: red; background: #ffe6e6; padding: 10px; border-radius: 4px; margin-bottom: 15px; }
+        .success { color: green; background: #e6ffe6; padding: 10px; border-radius: 4px; margin-bottom: 15px; }
+        .test-result { background: #f0f0f0; padding: 15px; border-radius: 4px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>Test Security & Validation</h1>
+    
+    {% if errors %}
+        <div class="error">
+            <h3>Erreurs de validation:</h3>
+            {% for field, fieldErrors in errors %}
+                <strong>{{ field }}:</strong>
+                {% for error in fieldErrors %}
+                    <div>{{ error }}</div>
+                {% endfor %}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if success %}
+        <div class="success">{{ success }}</div>
+    {% endif %}
+
+    {% if testResults %}
+        <div class="test-result">
+            <h3>Résultats des tests:</h3>
+            {{ testResults|raw }}
+        </div>
+    {% endif %}
+
+    <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        
+        <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" name="username" id="username" placeholder="Min 3 caractères" value="{{ username ?? '' }}">
+        </div>
+        
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" name="email" id="email" placeholder="email@example.com" value="{{ email ?? '' }}">
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" name="password" id="password" placeholder="Min 8 caractères">
+        </div>
+        
+        <button type="submit">Tester Security & Validation</button>
+    </form>
+</body>
+</html>

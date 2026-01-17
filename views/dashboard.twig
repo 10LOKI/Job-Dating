@@ -1,0 +1,55 @@
+{% extends "layout/layout.twig" %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h1>Dashboard</h1>
+    
+    {% if success %}
+        <div style="color: green; margin-bottom: 20px;">{{ success }}</div>
+    {% endif %}
+    
+    <div class="user-info">
+        <h2>Welcome, {{ user.username ?? user.email }}!</h2>
+        <p>User ID: {{ user.id }}</p>
+        <p>Email: {{ user.email }}</p>
+        {% if user.username %}
+            <p>Username: {{ user.username }}</p>
+        {% endif %}
+    </div>
+    
+    <div class="actions">
+        <a href="/logout" class="btn btn-danger">Logout</a>
+    </div>
+</div>
+
+<style>
+.dashboard-container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 30px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.user-info {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.btn-danger {
+    background: #dc3545;
+    color: white;
+}
+</style>
+{% endblock %}

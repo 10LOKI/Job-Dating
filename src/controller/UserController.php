@@ -11,12 +11,12 @@ class UserController extends BaseController
 {
     public function profile($id)
     {
-        $this->view('user', ['id' => $id, 'title' => 'User Profile']);
+        $this->view('layout', ['id' => $id, 'title' => 'User Profile']);
     }
     public function delete($id){
         $user = new UserModel();
         $user->delete($id);
-        echo " user deleted successfuly !!";
+        echo " layout deleted successfuly !!";
     }
     public function all()
     {
@@ -29,22 +29,26 @@ class UserController extends BaseController
     
     public function register()
     {
-        Session::start();
-        
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            echo "<h3>Test CSRF:</h3>";
+            $testResults = "";
+            
+            // Test CSRF
+            $testResults .= "<h4>Test CSRF:</h4>";
             $csrfValid = Security::verifyCSRF($_POST['csrf_token'] ?? '');
-            echo "CSRF valide: " . ($csrfValid ? 'OUI' : 'NON') . "<br>";
+            $testResults .= "CSRF valide: " . ($csrfValid ? 'OUI' : 'NON') . "<br>";
             
             if (!$csrfValid) {
-                die('CSRF token invalide');
+                $this->view('test-security.twig', ['errors' => ['csrf' => ['Token CSRF invalide']]]);
+                return;
             }
             
-            echo "<h3>Test Clean:</h3>";
+            // Test Clean
+            $testResults .= "<h4>Test Clean:</h4>";
             $data = Security::clean($_POST);
-            echo "<pre>" . print_r($data, true) . "</pre>";
+            $testResults .= "<pre>" . htmlspecialchars(print_r($data, true)) . "</pre>";
             
-            echo "<h3>Test Validation:</h3>";
+            // Test Validation
+            $testResults .= "<h4>Test Validation:</h4>";
             $isValid = Validation::validate($data, [
                 'username' => 'required|min:3',
                 'email' => 'required|email',
@@ -52,32 +56,38 @@ class UserController extends BaseController
             ]);
             
             if (!$isValid) {
-                echo "Erreurs: <pre>" . print_r(Validation::getErrors(), true) . "</pre>";
-                Session::flash('errors', Validation::getErrors());
-                $this->view('login', ['errors' => Validation::getErrors()]);
+                $this->view('test-security.twig', [
+                    'errors' => Validation::getErrors(),
+                    'testResults' => $testResults,
+                    'username' => $data['username'] ?? '',
+                    'email' => $data['email'] ?? ''
+                ]);
                 return;
             }
             
-            echo "Validation: SUCCÈS<br>";
+            $testResults .= "Validation: SUCCÈS<br>";
             
-            // echo "<h3>Test Hash Password:</h3>";
-            // $hash = Security::hashPassword($data['password']);
-            // echo "Hash créé: " . substr($hash, 0, 30) . "...<br>";
-            // $verifyOk = Security::verifyPassword($data['password'], $hash);
-            // echo "Vérification: " . ($verifyOk ? 'OUI' : 'NON') . "<br>";
+            // Test Hash Password
+            $testResults .= "<h4>Test Hash Password:</h4>";
+            $hash = Security::hashPassword($data['password']);
+            $testResults .= "Hash créé: " . substr($hash, 0, 30) . "...<br>";
+            $verifyOk = Security::verifyPassword($data['password'], $hash);
+            $testResults .= "Vérification: " . ($verifyOk ? 'OUI' : 'NON') . "<br>";
             
-            // echo "<h3>Test Session:</h3>";
-            // Session::set('user', $data['username']);
-            // echo "Session set: user = " . Session::get('user') . "<br>";
-            // echo "Session has 'user': " . (Session::has('user') ? 'OUI' : 'NON') . "<br>";
-            // Session::flash('success', 'Inscription réussie!');
-            // echo "Flash message set<br>";
-            // echo "Flash message: " . Session::flash('success') . "<br>";
-            // echo "Flash message après lecture: " . (Session::has('success') ? 'EXISTE' : 'SUPPRIMÉ') . "<br>";
+            // Test Session
+            $testResults .= "<h4>Test Session:</h4>";
+            Session::set('user', $data['username']);
+            $testResults .= "Session set: user = " . Session::get('user') . "<br>";
+            $testResults .= "Session has 'user': " . (Session::has('user') ? 'OUI' : 'NON') . "<br>";
+            Session::flash('success', 'Test réussi!');
+            $testResults .= "Flash message: " . Session::flash('success') . "<br>";
             
-            // echo "<h3>Tous les tests passés!</h3>";
+            $this->view('test-security.twig', [
+                'success' => 'Tous les tests passés avec succès!',
+                'testResults' => $testResults
+            ]);
         } else {
-            $this->view('login');
+            $this->view('test-security.twig');
         }
     }
 }

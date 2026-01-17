@@ -1,56 +1,109 @@
 <?php
+
 namespace App\core;
 
 class Session
 {
-    public static function start()
+    private static $instance = null;
+
+    private function __construct()
     {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
     }
 
-    public static function set($key, $value)
+    /**
+     * Récupère l'instance unique (Singleton)
+     */
+    public static function getInstance(): self
     {
-        self::start();
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+
+        return self::$instance;
+    }
+
+    /**
+     * Définit une valeur en session
+     */
+    public function set(string $key, $value): void
+    {
         $_SESSION[$key] = $value;
     }
 
-    public static function get($key, $default = null)
+    /**
+     * Récupère une valeur de la session
+     */
+    public function get(string $key, $default = null)
     {
-        self::start();
         return $_SESSION[$key] ?? $default;
     }
 
-    public static function has($key)
+    /**
+     * Vérifie si une clé existe
+     */
+    public function has(string $key): bool
     {
-        self::start();
         return isset($_SESSION[$key]);
     }
 
-    public static function delete($key)
+    /**
+     * Supprime une valeur de la session
+     */
+    public function delete(string $key): void
     {
-        self::start();
-        if (isset($_SESSION[$key])) {
-            unset($_SESSION[$key]);
+        unset($_SESSION[$key]);
+    }
+
+    /**
+     * Détruit toute la session
+     */
+    public function destroy(): void
+    {
+        $_SESSION = [];
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_destroy();
         }
+        self::$instance = null;
     }
 
-    public static function destroy()
+    /**
+     * Flash message (message temporaire)
+     */
+    public function flash(string $key, $value = null)
     {
-        self::start();
-        session_unset();
-        session_destroy();
-    }
-
-    public static function flash($key, $value = null)
-    {
-        self::start();
         if ($value === null) {
-            $flash = self::get($key);
-            self::delete($key);
-            return $flash;
+            $message = $this->get("flash_{$key}");
+            $this->delete("flash_{$key}");
+            return $message;
         }
-        self::set($key, $value);
+
+        $this->set("flash_{$key}", $value);
+    }
+
+    /**
+     * Régénère l'ID de session (sécurité)
+     */
+    public function regenerate(): void
+    {
+        session_regenerate_id(true);
+    }
+
+    /**
+     * Récupère toutes les données de session
+     */
+    public function all(): array
+    {
+        return $_SESSION ?? [];
+    }
+
+    /**
+     * Vide toutes les données de session sans la détruire
+     */
+    public function clear(): void
+    {
+        $_SESSION = [];
     }
 }
